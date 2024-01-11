@@ -5,7 +5,84 @@ Official Implementation of the EMNLP 2023 paper on "Instructed Language Models w
 During the time of development, the implementation of LLaMA in `transformers` is not stable, so we provided an adapted version in this repo. Be sure to uninstall the local `transformers` package before running the code, running it in a clean environment or changing the order of `PYTHONPATH` so that local packages have higher priority than the installed ones.
 
 ## Dataset Preparation
-TBD
+
+### Wikipedia Training Data
+
+1. Download the latest Wikipedia English dump from [here](https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2).
+
+2. Install wikipedia2vec from PyPI.:
+    ```bash
+    pip install wikipedia2vec
+    ```
+
+3. Run the following command to use `wikipedia2vec` to build dump db from the downloaded Wikipedia dump. Dump db allows parallel access to the Wikipedia dump.
+    ```bash
+    wikipedia2vec build-dump-db enwiki-latest-pages-articles.xml.bz2 enwiki-latest-pages-articles.db
+    ```
+
+4. Run the following command to convert from dump db to jsonl input-output format of InsGenEL. You may need to change the hard-coded paths in the script.
+    ```bash
+    python data_scripts/wiki_dump.py
+    ```
+
+Now you have a jsonl file containing the training pairs for InsGenEL.
+
+### Entity Linking Evaluation Data
+
+We follow the procedures of [elevant](https://github.com/ad-freiburg/elevant) to prepare the evaluation data. To begin, clone the repo first:
+
+```bash
+git clone https://github.com/ad-freiburg/elevant
+```
+
+Evaluation data should be in it. Run the following command to download the evaluation mappings:
+
+```bash
+make download_all
+```
+
+## Training
+TBD.
+
+## Evaluation
+As we opt in the modern toolkit `elevant` for evaluating entity linking performance, we build an persistent API for `elevant` so that it receives the output of InsGenEL and returns the evaluation results.
+
+First, open a terminal and run the following command to start the API server:
+
+```bash
+PYTHONPATH=. python eval/persistent_el_eval.py
+```
+
+To faciliate the evaluation, we provide a watch-dog script that consistently monitors the output directory of InsGenEL and evaluate the latest model on the evaluation data. To use it, open another terminal and run the following command:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src/ python eval/universal_offline_eval.py --watch_path ./llama_7B_EL_full_evalsample_0.5 --checkpoint_name .
+```
+
+Result log files will be saved in the format of "elevant_results_*.log" in the checkpoint directory.
+
 
 ## Citation
-TBD
+
+```bibtex
+@inproceedings{xiao-etal-2023-instructed,
+    title = "Instructed Language Models with Retrievers Are Powerful Entity Linkers",
+    author = "Xiao, Zilin  and
+      Gong, Ming  and
+      Wu, Jie  and
+      Zhang, Xingyao  and
+      Shou, Linjun  and
+      Jiang, Daxin",
+    editor = "Bouamor, Houda  and
+      Pino, Juan  and
+      Bali, Kalika",
+    booktitle = "Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing",
+    month = dec,
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.emnlp-main.139",
+    doi = "10.18653/v1/2023.emnlp-main.139",
+    pages = "2267--2282"
+}
+```
