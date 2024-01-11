@@ -42,7 +42,12 @@ make download_all
 ```
 
 ## Training
-TBD.
+
+```bash
+deepspeed --num-gpus=8 universal_train.py --model_name_or_path ./llama_hf_7B --train_jsonl_path /home/v-zilinxiao/data/dataset/wiki_full_eval_only/wiki_eval_sample_0.2.jsonl --empty_instruction False --bf16 False --output_dir ./llama_7B_final_checkpoint/ --num_train_epochs 1 --per_device_train_batch_size 3 --per_device_eval_batch_size 3 --gradient_accumulation_steps 1 --save_strategy steps --save_steps 50000 --save_total_limit 10 --learning_rate 2e-5 --weight_decay 0. --lr_scheduler_type polynomial --warmup_ratio 0.03 --logging_steps 10 --deepspeed ./deepspeed_configs/ds_config_zero3.json --fp16 --report_to wandb --run_name llama_7B_final_checkpoint --tf32 False
+```
+
+Above command should take 61 hours on 8 V100-SXM-32GB GPUs with NVLink.
 
 ## Evaluation
 As we opt in the modern toolkit `elevant` for evaluating entity linking performance, we build an persistent API for `elevant` so that it receives the output of InsGenEL and returns the evaluation results.
@@ -60,7 +65,6 @@ CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src/ python eval/universal_offline_eval.py --w
 ```
 
 Result log files will be saved in the format of "elevant_results_*.log" in the checkpoint directory.
-
 
 ## Acknowledgement
 We thank the authors of [elevant](https://github.com/ad-freiburg/elevant), [wikipedia2vec](https://github.com/wikipedia2vec/wikipedia2vec) and [GENRE](https://github.com/facebookresearch/GENRE) and parts of our code are borrowed from them with minor modifications.
