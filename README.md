@@ -62,6 +62,9 @@ CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src/ python eval/universal_offline_eval.py --w
 Result log files will be saved in the format of "elevant_results_*.log" in the checkpoint directory.
 
 
+## Acknowledgement
+We thank the authors of [elevant](https://github.com/ad-freiburg/elevant), [wikipedia2vec](https://github.com/wikipedia2vec/wikipedia2vec) and [GENRE](https://github.com/facebookresearch/GENRE) and parts of our code are borrowed from them with minor modifications.
+
 ## Citation
 
 ```bibtex
